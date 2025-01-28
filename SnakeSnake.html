@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>蛇年上上签</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #ff007f, #ff77a9);
+            color: #fff;
+            text-align: center;
+            overflow-x: hidden;
+        }
+        .container {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            display: inline-block;
+            margin-top: 20px;
+            max-width: 600px;
+            width: 90%;
+            box-sizing: border-box;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin: 20px 0;
+            color: #ffd700;
+        }
+        .input-group {
+            margin: 20px 0;
+        }
+        .input-group label {
+            font-size: 1rem;
+            color: #fff;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .input-group input {
+            padding: 10px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .button {
+            background-color: #ff4500;
+            color: #fff;
+            border: none;
+            padding: 15px 20px;
+            font-size: 1rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin: 10px;
+            width: 100%;
+        }
+        .button:hover {
+            background-color: #ff6347;
+        }
+        .output {
+            margin: 20px auto;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            box-sizing: border-box;
+        }
+        .keyword {
+            font-size: 1.2rem;
+            margin: 10px 0;
+            color: #ffd700;
+        }
+        .poem {
+            font-size: 1rem;
+            margin: 10px 0;
+            color: #f0e68c;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .share-button {
+            background-color: #121212;
+            color: #ff4500;
+            border: 1px solid #ff4500;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: 0.3s;
+            width: 100%;
+        }
+        .share-button:hover {
+            background-color: #ff4500;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>蛇年上上签</h1>
+        <p>输入生日，领取你的新年好运！</p>
+        <div class="input-group">
+            <label for="birthday">请输入你的生日：</label><br>
+            <input type="date" id="birthday" name="birthday">
+        </div>
+        <button class="button" onclick="generateKeywords()">生成好运签</button>
+
+        <div class="output" id="output" style="display: none;">
+            <div id="keywords"></div>
+            <div id="poems"></div>
+            <button class="share-button" onclick="saveAsImage()">长按保存照片，分享</button>
+            <button class="share-button" onclick="resetPage()">再抽一签</button>
+        </div>
+    </div>
+
+    <script>
+        const keywordPool = {
+            "爱情": ["桃花开", "红线牵", "心心相印", "百年好合", "美满良缘", "情投意合", "天作之合", "喜结良缘", "月下相逢", "缘定三生"],
+            "事业": ["事业高升", "贵人运", "满载而归", "蒸蒸日上", "平步青云", "财源广进", "宏图大展", "节节高升", "百业兴旺", "兴旺发达"],
+            "健康": ["身强体健", "无病无忧", "精神焕发", "福寿安康", "岁岁平安", "健康长寿", "延年益寿", "青春永驻", "康宁万岁", "寿比南山"]
+        };
+
+        const poemMap = {
+            "桃花开": "满庭芳菲迎春至，桃花开尽好姻缘。",
+            "红线牵": "月老赠君红线牵，千里姻缘一线牵。",
+            "心心相印": "两心相知比金坚，千秋共谱佳话传。",
+            "百年好合": "百年好合家和美，长相厮守福无边。",
+            "美满良缘": "鸳鸯比翼天作伴，美满良缘万年长。",
+            "情投意合": "情投意合如双星，交相辉映天地长。",
+            "天作之合": "天赐良缘月老牵，百年和合并蒂莲。",
+            "喜结良缘": "良缘喜结共婵娟，春风得意花开全。",
+            "月下相逢": "皎皎月下两相逢，牵手同心梦成空。",
+            "缘定三生": "三生石畔注缘定，携手白头梦相通。",
+            "事业高升": "扶摇直上九万里，鹏程万里绘新篇。",
+            "贵人运": "得人相助如顺水，他日功名冠九州。",
+            "满载而归": "金玉满船归乡处，笑看丰年万事兴。",
+            "蒸蒸日上": "时来运转鸿运起，事业蒸蒸步步高。",
+            "平步青云": "青云直上万事顺，风生水起好运来。",
+            "财源广进": "财源滚滚福运长，富贵花开满堂春。",
+            "宏图大展": "宏图大展展新篇，志向高远天下连。",
+            "节节高升": "竹报佳音节节升，好运长伴福满盈。",
+            "百业兴旺": "百业兴旺添喜气，万事顺遂好运至。",
+            "兴旺发达": "兴旺发达财源滚，吉祥如意事事顺。",
+            "身强体健": "春风拂面添活力，强身健体笑开颜。",
+            "无病无忧": "长乐无忧身康健，四季平安幸福多。",
+            "精神焕发": "精神焕发添朝气，明日更上新高峰。",
+            "福寿安康": "福寿安康长相伴，吉祥如意笑开颜。",
+            "岁岁平安": "岁岁平安多福气，年年如意笑春风。",
+            "健康长寿": "寿比南山松不老，福如东海水长流。",
+            "延年益寿": "寿山福海添佳景，延年益寿百事通。",
+            "青春永驻": "青春永驻似朝阳，春风得意福寿长。",
+            "康宁万岁": "康宁福寿添佳运，岁月静好乐绵长。",
+            "寿比南山": "寿比南山不老松，福如东海长流水。"
+        };
+
+        function generateKeywords() {
+            const birthdayInput = document.getElementById("birthday").value;
+            if (!birthdayInput) {
+                alert("请输入生日后再试！");
+                return;
+            }
+
+            const outputDiv = document.getElementById("output");
+            const keywordsDiv = document.getElementById("keywords");
+            const poemsDiv = document.getElementById("poems");
+
+            // 随机抽取每个类别的关键词
+            const selectedKeywords = [
+                getRandomItem(keywordPool["爱情"]),
+                getRandomItem(keywordPool["事业"]),
+                getRandomItem(keywordPool["健康"])
+            ];
+
+            // 清空之前的内容
+            keywordsDiv.innerHTML = "";
+            poemsDiv.innerHTML = "";
+
+            selectedKeywords.forEach(keyword => {
+                const keywordElem = document.createElement("div");
+                keywordElem.className = "keyword";
+                keywordElem.textContent = keyword;
+
+                const poemElem = document.createElement("div");
+                poemElem.className = "poem";
+                poemElem.textContent = poemMap[keyword];
+
+                keywordsDiv.appendChild(keywordElem);
+                poemsDiv.appendChild(poemElem);
+            });
+
+            // 显示结果
+            outputDiv.style.display = "block";
+        }
+
+        function getRandomItem(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+
+        function saveAsImage() {
+            alert("照片保存功能开发中，请稍后完成！");
+        }
+
+        function resetPage() {
+            document.getElementById("output").style.display = "none";
+            document.getElementById("birthday").value = "";
+        }
+    </script>
+</body>
+</html>
