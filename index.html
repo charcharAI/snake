@@ -75,10 +75,12 @@
             margin: 10px 0;
             color: #ffd700;
         }
-        .poem { font-size: 0.9rem;
+        .poem {
+            font-size: 0.9rem;
             margin: 10px 0;
             color: #f0e68c;
-            white-space: normal; overflow-wrap: break-word;
+            white-space: normal;
+            overflow-wrap: break-word;
         }
         .share-button {
             background-color: #121212;
@@ -101,18 +103,22 @@
 <body>
     <div class="container">
         <h1>蛇年上上签</h1>
-        <p>输入生日，领取你的新年好运！</p>
+        <p>输入名字和生日，领取你的新年好运！</p>
         <div class="input-group">
-            <label for="birthday">请输入你的生日：</label><br>
+            <label for="name">请输入你的名字：</label>
+            <input type="text" id="name" name="name" placeholder="你的名字">
+        </div>
+        <div class="input-group">
+            <label for="birthday">请输入你的生日：</label>
             <input type="date" id="birthday" name="birthday">
         </div>
         <button class="button" onclick="generateKeywords()">生成好运签</button>
 
         <div class="output" id="output" style="display: none;">
-            <h3>您的蛇年关键词</h3>
+            <h3 id="greeting"></h3>
             <div id="keywords"></div>
             <div id="poems"></div>
-                        <button class="share-button" onclick="resetPage()">再抽一签</button>
+            <button class="share-button" onclick="resetPage()">再抽一签</button>
         </div>
     </div>
 
@@ -157,13 +163,20 @@
         };
 
         function generateKeywords() {
-            const birthdayInput = document.getElementById("birthday").value;
-            if (!birthdayInput) {
+            const name = document.getElementById("name").value.trim();
+            const birthday = document.getElementById("birthday").value;
+
+            if (!name) {
+                alert("请输入名字后再试！");
+                return;
+            }
+            if (!birthday) {
                 alert("请输入生日后再试！");
                 return;
             }
 
             const outputDiv = document.getElementById("output");
+            const greetingDiv = document.getElementById("greeting");
             const keywordsDiv = document.getElementById("keywords");
             const poemsDiv = document.getElementById("poems");
 
@@ -175,6 +188,7 @@
             ];
 
             // 清空之前的内容
+            greetingDiv.textContent = `亲爱的 ${name}，以下是您的蛇年关键词：`;
             keywordsDiv.innerHTML = "";
             poemsDiv.innerHTML = "";
 
@@ -199,12 +213,9 @@
             return array[Math.floor(Math.random() * array.length)];
         }
 
-        function saveAsImage() {
-            alert("照片保存功能开发中，请稍后完成！");
-        }
-
         function resetPage() {
             document.getElementById("output").style.display = "none";
+            document.getElementById("name").value = "";
             document.getElementById("birthday").value = "";
         }
     </script>
